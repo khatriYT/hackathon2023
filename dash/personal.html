@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog App</title>
+
+    <script type="module">
+      function getQueryParam(name) {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        return urlSearchParams.get(name);
+      }
+
+      const uid = getQueryParam("uid");
+
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyA9gwgWggmRgz5cWspuvhe849TIT_V_ZOc",
+        authDomain: "smithackathon2023.firebaseapp.com",
+        projectId: "smithackathon2023",
+        storageBucket: "smithackathon2023.appspot.com",
+        messagingSenderId: "727220348254",
+        appId: "1:727220348254:web:7f9450fe047bf8fdbadbcf",
+      };
+
+      const app = initializeApp(firebaseConfig);
+
+      import {
+        getFirestore,
+        getDocs,
+        collection,
+        query,
+        where
+      } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-firestore.js";
+
+      const firestore = getFirestore();
+      const blogsCollectionRef = collection(firestore, "posts");
+      let query1 = query(blogsCollectionRef, where('uid', '==', uid));
+
+      const blogsArray = [];
+
+      getDocs(query1)
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            const blogData = doc.data();
+            blogsArray.push(blogData);
+          });
+
+          console.log("Fetched blogs:", blogsArray);
+          showData(blogsArray);
+        })
+        .catch((error) => {
+          console.error("Error fetching blogs:", error);
+        });
+
+      let showData = (blogsArray) => {
+        let con = document.getElementById("blogsCards");
+        let n = document.getElementById("nameT");
+
+        blogsArray.forEach((v) => {
+          n.innerHTML = v.userName;
+          con.innerHTML += `
+                <div
+          style="
+            width: 65vw;
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 10px;
+          "
+        >
+          <h3>${v.title}</h3>
+          <p
+            style="
+              color: #8f8d8d;
+              font-size: 14px;
+              margin-top: -10px;
+              font-weight: 600;
+            "
+          >
+            ${v.userName} - ${v.creationDate}
+          </p>
+          <p style="color: #8f8d8d; font-size: 14px; margin-top: -10px">
+            ${v.body}
+          </p>
+        </div>
+                `;
+        });
+      };
+    </script>
+  </head>
+  <body style="margin: 0; font-family: sans-serif">
+    <div
+      style="
+        background-color: purple;
+        height: 50px;
+        display: flex;
+        justify-content: space-between;
+        padding-left: 30px;
+        padding-right: 30px;
+      "
+    >
+      <h3 style="color: white">Blogging App</h3>
+      <a href="./auth/login.html"
+        ><h4 style="color: white; text-decoration: none">Login</h4></a
+      >
+    </div>
+    <div
+      id="body"
+      style="padding: 30px; background-color: #f4f4f4; min-height: 100vh"
+    >
+      <h3>All Blogs from <span id="nameT"></span></h3>
+      <div id="blogsCards"></div>
+    </div>
+  </body>
+</html>

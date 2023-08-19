@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog App</title>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        getDoc,
+        collection,
+        addDoc,
+        getDocs,
+      } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyA9gwgWggmRgz5cWspuvhe849TIT_V_ZOc",
+        authDomain: "smithackathon2023.firebaseapp.com",
+        projectId: "smithackathon2023",
+        storageBucket: "smithackathon2023.appspot.com",
+        messagingSenderId: "727220348254",
+        appId: "1:727220348254:web:7f9450fe047bf8fdbadbcf",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth();
+      const firestore = getFirestore();
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          const uid = user.uid;
+          console.log("User is signed in with UID:", uid);
+        } else {
+          console.log("User is signed out");
+          window.location.replace("../index.html");
+        }
+      });
+
+      const titleInput = document.getElementById("title");
+      const bodyInput = document.getElementById("bodytxt");
+      const postButton = document.getElementById("but");
+
+      postButton.addEventListener("click", () => {
+        postButton.disabled = true;
+        const title = titleInput.value;
+        const body = bodyInput.value;
+
+        const user = auth.currentUser;
+        const uid = user.uid;
+
+        const firestore = getFirestore();
+        const postsCollectionRef = collection(firestore, "posts");
+
+        const currentDate = new Date();
+
+        const formattedDate = currentDate.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+        });
+
+        const userDocRef = doc(firestore, "users", uid);
+        getDoc(userDocRef)
+          .then((userDoc) => {
+            if (userDoc.exists()) {
+              const userName = userDoc.data().name;
+              const profile = userDoc.data().profilePic;
+              console.log(bodyInput);
+              addDoc(postsCollectionRef, {
+                title: title,
+                body: body,
+                uid: uid,
+                userName: userName,
+                creationDate: formattedDate,
+                profile: profile,
+              })
+                .then(() => {
+                  console.log("Post added successfully");
+                  alert("added");
+
+                  bodyInput.value = "";
+                  titleInput.value = "";
+                  postButton.disabled = false;
+                  window.location.reload();
+                })
+                .catch((error) => {
+                  console.error("Error adding post:", error);
+                  alert("error");
+                  postButton.disabled = false;
+                });
+            } else {
+              console.error("User document not found");
+              postButton.disabled = false;
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching user document:", error);
+            postButton.disabled = false;
+          });
+      });
+
+      const blogsCollectionRef = collection(firestore, "posts");
+
+      const blogsArray = [];
+
+      getDocs(blogsCollectionRef)
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            const blogData = doc.data();
+            blogsArray.push(blogData);
+          });
+
+          console.log("Fetched blogs:", blogsArray);
+          showData(blogsArray);
+        })
+        .catch((error) => {
+          console.error("Error fetching blogs:", error);
+        });
+
+      let showData = (blogsArray) => {
+        let con = document.getElementById("blogsCards");
+
+        blogsArray.forEach((v) => {
+          con.innerHTML += `
+          <div
+    style="
+      width: 65vw;
+      background-color: #fff;
+      border-radius: 5px;
+      padding: 20px;
+      margin: 10px;
+    "
+  >
+  <div style="display: flex; gap: 20px">
+    <div> 
+        <img src="${v.profile}"" height="70" width="70" style="boder-radius: 5px;"/>
+        </div>
+    <div>
+        <h3>${v.title}</h3>
+    <p
+      style="
+        color: #8f8d8d;
+        font-size: 14px;
+        margin-top: -10px;
+        font-weight: 600;
+      "
+    >
+      ${v.userName} - ${v.creationDate}
+    </p>
+    </div>
+    </div>
+  
+    
+    <p style="color: #8f8d8d; font-size: 14px;">
+      ${v.body}
+    </p>
+    <a href="./personal.html?uid=${v.uid}" style="color: purple; font-size: 14px; margin-top: -10px"
+      >See All From This User</a
+    >
+  </div>
+          `;
+        });
+      };
+    </script>
+  </head>
+  <body style="margin: 0; font-family: sans-serif">
+    <div
+      style="
+        background-color: purple;
+        height: 50px;
+        display: flex;
+        justify-content: space-between;
+        padding-left: 30px;
+        padding-right: 30px;
+      "
+    >
+      <h3 style="color: white">Blogging App</h3>
+    </div>
+    <div
+      id="body"
+      style="padding: 30px; background-color: #f4f4f4; min-height: 100vh"
+    >
+      <div id="blogs cards">
+        <div
+          style="
+            width: 40vw;
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+          "
+        >
+          <input
+            type="text"
+            style="
+              border: 1px solid #f4f4f4;
+              border-radius: 4px;
+              width: 70%;
+              padding: 5px;
+              margin: 5px;
+            "
+            placeholder="Title"
+            id="title"
+          />
+          <textarea
+            style="
+              border: 1px solid #f4f4f4;
+              border-radius: 4px;
+              width: 70%;
+              padding: 5px;
+              margin: 5px;
+            "
+            placeholder="Body"
+            id="bodytxt"
+          ></textarea>
+          <br />
+          <button
+            style="
+              color: white;
+              background-color: purple;
+              padding: 5px 10px 5px 10px;
+              border: 0;
+              margin: 5px;
+              border-radius: 5px;
+            "
+            id="but"
+          >
+            Add
+          </button>
+          <br />
+        </div>
+      </div>
+      <h3>All Blogs</h3>
+      <div id="blogsCards"></div>
+    </div>
+  </body>
+</html>

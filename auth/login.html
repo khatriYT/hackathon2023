@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
+      import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyA9gwgWggmRgz5cWspuvhe849TIT_V_ZOc",
+        authDomain: "smithackathon2023.firebaseapp.com",
+        projectId: "smithackathon2023",
+        storageBucket: "smithackathon2023.appspot.com",
+        messagingSenderId: "727220348254",
+        appId: "1:727220348254:web:7f9450fe047bf8fdbadbcf",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth();
+
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("pass");
+      const loginButton = document.getElementById("but");
+      
+
+      loginButton.addEventListener("click", () => {
+        const email = emailInput.value;
+        const password = passwordInput.value;
+
+        signInWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            console.log("Logged in:", user);
+            window.location.replace("../dash/dash.html")
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.error("Login error:", errorCode, errorMessage);
+          });
+      });
+    </script>
+  </head>
+  <body style="margin: 0; font-family: sans-serif">
+    <div
+      style="
+        background-color: purple;
+        height: 50px;
+        display: flex;
+        justify-content: space-between;
+        padding-left: 30px;
+        padding-right: 30px;
+      "
+    >
+      <h3 style="color: white">Blogging App</h3>
+      <a href="./login.html"
+        ><h4 style="color: white; text-decoration: none">Login</h4></a
+      >
+    </div>
+    <div
+      id="body"
+      style="padding: 30px; background-color: #f4f4f4; min-height: 100vh"
+    >
+      <h3>Login</h3>
+      <div id="blogs cards">
+        <div
+          style="
+            width: 40vw;
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+          "
+        >
+          <input
+            type="text"
+            style="
+              border: 1px solid #f4f4f4;
+              border-radius: 4px;
+              width: 70%;
+              padding: 5px;
+              margin: 5px;
+            "
+            placeholder="Email"
+            id="email"
+          />
+          <input
+            type="text"
+            style="
+              border: 1px solid #f4f4f4;
+              border-radius: 4px;
+              width: 70%;
+              padding: 5px;
+              margin: 5px;
+            "
+            placeholder="Password"
+            id="pass"
+          />
+          <br />
+          <button
+            style="
+              color: white;
+              background-color: purple;
+              padding: 5px 10px 5px 10px;
+              border: 0;
+              margin: 5px;
+            "
+            id="but"
+          >
+            Login
+          </button>
+          <br />
+          <a href="signup.html">signup</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
